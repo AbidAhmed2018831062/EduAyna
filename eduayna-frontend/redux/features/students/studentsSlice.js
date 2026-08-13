@@ -1,65 +1,58 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-
 export const fetchstudents = createAsyncThunk(
   "students/fetchStudents",
   async () => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND}/students`);
     return response.json();
-  }
+  },
 );
-
 
 export const addStudent = createAsyncThunk(
   "students/addStudent",
- async (data) => {
+  async (data) => {
     const response = await fetch(
-     `${process.env.NEXT_PUBLIC_BACKEND}/students`,
+      `${process.env.NEXT_PUBLIC_BACKEND}/students`,
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data })
-      }
+        body: JSON.stringify({ data }),
+      },
     );
-
-    return response.json();
-  }
+    const value = await response.json();
+    return value;
+  },
 );
-
 
 export const updateStudent = createAsyncThunk(
   "students/updateStudent",
-    async ({ id, title }) => {
+  async ({ id, title }) => {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND}/students/${id}`,
       {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title })
-      }
+        body: JSON.stringify({ title }),
+      },
     );
 
     return response.json();
-  }
+  },
 );
-
 
 export const deleteStudent = createAsyncThunk(
   "students/deleteStudent",
   async (id) => {
-    await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND}/students/${id}`,
-      {
-        method: "DELETE"
-      }
-    );
+    await fetch(`${process.env.NEXT_PUBLIC_BACKEND}/students/${id}`, {
+      method: "DELETE",
+    });
 
     return id;
-  }
+  },
 );
 
 const studentsSlice = createSlice({
@@ -76,33 +69,40 @@ const studentsSlice = createSlice({
   reducers: {},
 
   extraReducers: (builder) => {
-
+    builder.addCase(fetchstudents.pending, (state, action) => {
+      state.loading = true;
+      state.addError = false;
+    });
     builder.addCase(fetchstudents.fulfilled, (state, action) => {
       state.students = action.payload;
     });
+    builder.addCase(fetchstudents.rejected, (state, action) => {
+      state.loading = false;
 
-builder
-  .addCase(addStudent.pending, (state) => {
-    state.addLoading = true;
-    state.addError = null;
-  })
+      state.error = action.error.message || "Failed to add task";
+    });
 
-  .addCase(addStudent.fulfilled, (state, action) => {
-    state.addLoading = false;
-    state.addError = null;
+    builder
+      .addCase(addStudent.pending, (state) => {
+        state.addLoading = true;
+        state.addError = null;
+      })
 
-    state.items.push(action.payload);
-  })
+      .addCase(addStudent.fulfilled, (state, action) => {
+        state.addLoading = false;
+        state.addError = null;
 
-  .addCase(addStudent.rejected, (state, action) => {
-    state.addLoading = false;
+        state.students.push(action.payload);
+      })
 
-    state.addError =
-      action.error.message || "Failed to add task";
-  });
-  }
+      .addCase(addStudent.rejected, (state, action) => {
+        state.addLoading = false;
+
+        state.addError = action.error.message || "Failed to add task";
+      });
+  },
 });
 
-const studentsReducer=studentsSlice.reducer;
+const studentsReducer = studentsSlice.reducer;
 
 export default studentsReducer;

@@ -42,6 +42,10 @@ function AddStudentModal({ setAddStudentModal }) {
       try {
         const data=await dispatch(addStudent(values)).unwrap()
         resetForm();
+       if(data?.error){
+        showToast("error",data?.error||data?.error?.message)
+        return;
+       }
         showToast("success","Student Addedd Successfully")
         setAddStudentModal(false);
       } catch (error) {
