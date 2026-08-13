@@ -99,12 +99,43 @@ const studentsSlice = createSlice({
     deleteLoading:false,
     updateLoading:false,
     updateError:null,
+      selectedClasses: [],
+  selectedStatuses: [],
       search: "",
   },
 
   reducers: { setSearch: (state, action) => {
       state.search = action.payload;
-    },},
+    },
+   toggleClassFilter: (state, action) => {
+    const className = action.payload;
+
+    if (state.selectedClasses.includes(className)) {
+      state.selectedClasses = state.selectedClasses.filter(
+        (item) => item !== className
+      );
+    } else {
+      state.selectedClasses.push(className);
+    }
+  },
+
+  toggleStatusFilter: (state, action) => {
+    const status = action.payload;
+
+    if (state.selectedStatuses.includes(status)) {
+      state.selectedStatuses = state.selectedStatuses.filter(
+        (item) => item !== status
+      );
+    } else {
+      state.selectedStatuses.push(status);
+    }
+  },
+
+  clearFilters: (state) => {
+    state.selectedClasses = [];
+    state.selectedStatuses = [];
+  },
+  },
 
   extraReducers: (builder) => {
     builder.addCase(fetchstudents.pending, (state, action) => {
@@ -205,7 +236,7 @@ const studentsSlice = createSlice({
   );
   },
 });
-export const { setSearch } = studentsSlice.actions;
+export const { setSearch, toggleClassFilter,toggleStatusFilter,clearFilters, } = studentsSlice.actions;
 const studentsReducer = studentsSlice.reducer;
 
 export default studentsReducer;
