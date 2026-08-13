@@ -1,9 +1,10 @@
 import express from 'express';
 const router = express.Router();
-import {addStudent, deleteStudent, getStudents, updateStudent} from "../controllers/studentController.js"
+import {addStudent, deleteStudent, getSingleStudent, getStudents, updateStudent} from "../controllers/studentController.js"
 router.get('/',getStudents);
 router.post("/",addStudent);
 router.delete("/:id",deleteStudent);
 router.patch("/:id",updateStudent);
+router.get("/:id",getSingleStudent);
 
 export default router;

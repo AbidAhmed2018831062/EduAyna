@@ -113,10 +113,36 @@ export const updateStudent = async (req, res, next) => {
         message: "Student not found",
       });
     }
-      return res.status(200).json({
+    return res.status(200).json({
       message: "Student updated successfully",
       student: result.rows[0],
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getSingleStudent = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+   const result = await pool.query(
+  `
+    SELECT
+      id,
+      name,
+      email,
+      phone,
+      class,
+      status,
+      created_at AS "createdAt"
+    FROM students
+    WHERE id = $1
+  `,
+  [id],
+);
+
+const student = result.rows[0];
+    res.send({ message: "Student Get Successfully", student });
   } catch (err) {
     next(err);
   }

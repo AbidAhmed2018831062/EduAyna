@@ -8,6 +8,7 @@ import StudentListLoading from "../Loading/StudentListLoading";
 import showToast from "@/app/showToast";
 import StudentListTable from "./StudentListTable";
 import FilterStudents from "./FilterStudents";
+import StudentsHeader from "./StudentsHeader";
 
 function StudentList(props) {
 
@@ -28,13 +29,7 @@ function StudentList(props) {
   }, [dispatch]);
   return (
     <div class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
-      <div class="p-4 flex items-center justify-between space-x-4">
-        <StudentSearch/>
-        <div className="flex items-center gap-3">
-       <FilterStudents/>
-        <AddStudent/>
-        </div>
-      </div>
+      <StudentsHeader/>
       {!loading?<StudentListTable students={students}/>
       :
       <StudentListLoading/>}
