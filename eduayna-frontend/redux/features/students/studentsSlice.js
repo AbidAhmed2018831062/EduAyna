@@ -98,10 +98,13 @@ const studentsSlice = createSlice({
     deleteError:null,
     deleteLoading:false,
     updateLoading:false,
-    updateError:null
+    updateError:null,
+      search: "",
   },
 
-  reducers: {},
+  reducers: { setSearch: (state, action) => {
+      state.search = action.payload;
+    },},
 
   extraReducers: (builder) => {
     builder.addCase(fetchstudents.pending, (state, action) => {
@@ -202,7 +205,7 @@ const studentsSlice = createSlice({
   );
   },
 });
-
+export const { setSearch } = studentsSlice.actions;
 const studentsReducer = studentsSlice.reducer;
 
 export default studentsReducer;

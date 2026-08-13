@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import DeleteModal from '../Modals/DeleteModal';
 import AddStudentModal from '../Modals/AddStudentModal';
+import { useSelector } from 'react-redux';
 
-function StudentListTable({students}) {
+function StudentListTable() {
+  const { students, search } = useSelector((state) => state.students);
+  
   const [deleteUserModal,setDeleteUserModal]=useState(false)
   const [currentStudent,setCurrentStudent]=useState(null)
   const [editModal,setEditModal]=useState(false)
@@ -15,6 +18,18 @@ setCurrentStudent(student)
     setCurrentStudent(student)
 
   }
+  const filteredStudents = students.filter((student) => {
+  const searchValue = search.toLowerCase();
+
+  return (
+    student.name?.toLowerCase().includes(searchValue) ||
+    student.email?.toLowerCase().includes(searchValue) ||
+    student.phone?.toLowerCase().includes(searchValue) ||
+    student.studentClass?.toLowerCase().includes(searchValue) ||
+    student.status?.toLowerCase().includes(searchValue)||
+     student.class?.toLowerCase().includes(searchValue)
+  );
+});
     return (
    <table className="w-full text-left text-sm">
   <thead className="border-b border-gray-200 bg-gray-50">
@@ -29,7 +44,7 @@ setCurrentStudent(student)
   </thead>
 
   <tbody>
-    {students?.map((student) => (
+    {filteredStudents?.map((student) => (
       <tr
         key={student?.id}
         className="border-b border-gray-100 last:border-0 hover:bg-gray-50"

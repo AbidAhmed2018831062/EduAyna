@@ -1,8 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
-import FilterDropdown from "../HelperComponents/FilterDropdown";
-import demoStudentList from "@/utils/demoStudentList";
-import StudentSort from "../HelperComponents/StudentSort";
+import StudentSearch from "../HelperComponents/StudentSearch";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchstudents } from "@/redux/features/students/studentsSlice";
 import AddStudent from "./AddStudent";
@@ -16,6 +14,7 @@ function StudentList(props) {
    const dispatch = useDispatch();
 
   const students = useSelector((state) => state.students.students);
+  
  const loading = useSelector(
       (state) => state.students.loading
   );
@@ -30,7 +29,7 @@ function StudentList(props) {
   return (
     <div class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
       <div class="p-4 flex items-center justify-between space-x-4">
-        <StudentSort/>
+        <StudentSearch/>
         <div className="flex items-center gap-3">
        <FilterStudents/>
         <AddStudent/>
