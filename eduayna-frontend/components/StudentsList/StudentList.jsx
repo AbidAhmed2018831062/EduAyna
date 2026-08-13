@@ -5,6 +5,7 @@ import demoStudentList from "@/utils/demoStudentList";
 import StudentSort from "../HelperComponents/StudentSort";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchstudents } from "@/redux/features/students/studentsSlice";
+import AddStudent from "./AddStudent";
 
 function StudentList(props) {
   const [openFilter, setOpenFilter] = useState(false);
@@ -34,6 +35,7 @@ function StudentList(props) {
     <div class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
       <div class="p-4 flex items-center justify-between space-x-4">
         <StudentSort/>
+        <div className="flex items-center gap-3">
         <div class="relative inline-block">
           <button
             onClick={() => setOpenFilter(true)}
@@ -78,6 +80,8 @@ function StudentList(props) {
             </svg>
           </button>
           {openFilter && <FilterDropdown ref={filterRef} />}
+        </div>
+        <AddStudent/>
         </div>
       </div>
       <table class="w-full text-sm text-left rtl:text-right text-body">

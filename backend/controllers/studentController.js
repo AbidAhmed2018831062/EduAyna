@@ -56,3 +56,9 @@ export const getStudents=async(req,res)=>{
   },
 ])
 }
+
+export const addStudent=async(req,res,next)=>{
+  const {name,email,phone,status} =req?.body;
+  console.log(req?.body)
+  res.send();
+}

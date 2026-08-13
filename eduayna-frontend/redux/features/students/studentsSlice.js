@@ -12,7 +12,7 @@ export const fetchstudents = createAsyncThunk(
 
 export const addStudent = createAsyncThunk(
   "students/addStudent",
- async (title) => {
+ async (data) => {
     const response = await fetch(
      `${process.env.NEXT_PUBLIC_BACKEND}/students`,
       {
@@ -20,7 +20,7 @@ export const addStudent = createAsyncThunk(
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ title })
+        body: JSON.stringify({ data })
       }
     );
 
@@ -68,7 +68,9 @@ const studentsSlice = createSlice({
   initialState: {
     students: [],
     loading: false,
-    error: null
+    error: null,
+    addLoading: false,
+    addError: null,
   },
 
   reducers: {},
@@ -79,9 +81,25 @@ const studentsSlice = createSlice({
       state.students = action.payload;
     });
 
-    builder.addCase(addStudent.fulfilled, (state, action) => {
-      state.students.push(action.payload);
-    });
+builder
+  .addCase(addStudent.pending, (state) => {
+    state.addLoading = true;
+    state.addError = null;
+  })
+
+  .addCase(addStudent.fulfilled, (state, action) => {
+    state.addLoading = false;
+    state.addError = null;
+
+    state.items.push(action.payload);
+  })
+
+  .addCase(addStudent.rejected, (state, action) => {
+    state.addLoading = false;
+
+    state.addError =
+      action.error.message || "Failed to add task";
+  });
   }
 });
 

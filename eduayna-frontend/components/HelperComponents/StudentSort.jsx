@@ -4,7 +4,6 @@ function StudentSort(props) {
     const [search,setSearch]=useState();
     const handleSearch=(search)=>{
         search.preventDefault();
-        console.log(search.target.value);
     }
     
     return (

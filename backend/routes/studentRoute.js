@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import {getStudents} from "../controllers/studentController.js"
+import {addStudent, getStudents} from "../controllers/studentController.js"
 router.get('/',getStudents);
-
+router.post("/",addStudent);
 export default router;
