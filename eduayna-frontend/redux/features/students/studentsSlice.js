@@ -62,7 +62,6 @@ export const deleteStudent = createAsyncThunk(
   }
 );
 
-
 const studentsSlice = createSlice({
   name: "students",
 
@@ -85,6 +84,7 @@ const studentsSlice = createSlice({
     });
   }
 });
+
 const studentsReducer=studentsSlice.reducer;
 
 export default studentsReducer;

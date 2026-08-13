@@ -16,6 +16,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json({ limit: '10mb' }))
 app.use(bodyParser.json({ limit: '10mb' }));
+app.use("/students",studentRouter);
 const port = process.env.PORT
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`)

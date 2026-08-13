@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import FilterDropdown from "../HelperComponents/FilterDropdown";
 import demoStudentList from "@/utils/demoStudentList";
 import StudentSort from "../HelperComponents/StudentSort";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchstudents } from "@/redux/features/students/studentsSlice";
 
 function StudentList(props) {
   const [openFilter, setOpenFilter] = useState(false);
@@ -20,6 +22,14 @@ function StudentList(props) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+   const dispatch = useDispatch();
+
+  const students = useSelector((state) => state.students.students);
+
+  useEffect(() => {
+    dispatch(fetchstudents());
+  }, [dispatch]);
   return (
     <div class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
       <div class="p-4 flex items-center justify-between space-x-4">
@@ -107,7 +117,7 @@ function StudentList(props) {
           </tr>
         </thead>
         <tbody>
-          {demoStudentList?.map((e) => (
+          {students?.map((e) => (
             <tr
               key={e?.id}
               class="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium"
