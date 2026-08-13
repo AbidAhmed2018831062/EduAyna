@@ -10,7 +10,7 @@ const app = express()
 const corsOptions = {
   origin: [
     "http://localhost:3000",
-    "https://edu-ayna.vercel.app/"
+    "https://edu-ayna.vercel.app"
   ],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
