@@ -5,27 +5,39 @@ import { useFormik } from "formik";
 import Modal from "./Modal";
 import { addStudentSchema } from "@/validation/schema.js";
 import { useDispatch, useSelector } from "react-redux";
-import { addStudent } from "@/redux/features/students/studentsSlice";
+import {
+  addStudent,
+  updateStudent,
+} from "@/redux/features/students/studentsSlice";
 import showToast from "@/app/showToast";
 
-const initialValues = {
-  name: "",
-  email: "",
-  phone: "",
-  class: "",
-  status: "active",
-};
+function AddStudentModal({
+  setAddStudentModal,
+  student = null,
+}) {
+  const dispatch = useDispatch();
+  const isEditing = Boolean(student);
 
-function AddStudentModal({ setAddStudentModal }) {
-   const addLoading = useSelector(
+  const addLoading = useSelector(
     (state) => state.students.addLoading
   );
 
-  const addError = useSelector(
-    (state) => state.students.addError
+  const updateLoading = useSelector(
+    (state) => state.students.updateLoading
   );
 
-  const dispatch=useDispatch();
+  const loading = isEditing
+    ? updateLoading
+    : addLoading;
+
+  const initialValues = {
+    name: student?.name || "",
+    email: student?.email || "",
+    phone: student?.phone || "",
+    class: student?.class || "",
+    status: student?.status || "active",
+  };
+
   const {
     values,
     errors,
@@ -33,24 +45,47 @@ function AddStudentModal({ setAddStudentModal }) {
     handleBlur,
     handleChange,
     handleSubmit,
-    resetForm,
   } = useFormik({
     initialValues,
     validationSchema: addStudentSchema,
+    enableReinitialize: true,
 
     onSubmit: async (values) => {
       try {
-        const data=await dispatch(addStudent(values)).unwrap()
-        resetForm();
-       if(data?.error){
-        showToast("error",data?.error||data?.error?.message)
-        return;
-       }
-        showToast("success","Student Addedd Successfully")
+        if (isEditing) {
+          await dispatch(
+            updateStudent({
+              id: student.id,
+              data: values,
+            })
+          ).unwrap();
+
+          showToast(
+            "success",
+            "Student Updated Successfully"
+          );
+        } else {
+          await dispatch(
+            addStudent(values)
+          ).unwrap();
+
+          showToast(
+            "success",
+            "Student Added Successfully"
+          );
+        }
+
         setAddStudentModal(false);
       } catch (error) {
-         showToast("error",error?.message||"Failed to add student")
-        console.error(error);
+        showToast(
+          "error",
+          typeof error === "string"
+            ? error
+            : error?.message ||
+                `Failed to ${
+                  isEditing ? "update" : "add"
+                } student`
+        );
       }
     },
   });
@@ -58,22 +93,32 @@ function AddStudentModal({ setAddStudentModal }) {
   const inputClass =
     "block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500";
 
-  const errorClass = "mt-1 text-xs text-red-600";
+  const errorClass =
+    "mt-1 text-xs text-red-600";
 
   return (
-    <Modal setOpen={setAddStudentModal} maxWidth="max-w-lg">
+    <Modal
+      setOpen={setAddStudentModal}
+      maxWidth="max-w-lg"
+    >
       <div className="mb-5">
         <h3 className="text-xl font-semibold text-gray-900">
-          Add Student
+          {isEditing
+            ? "Edit Student"
+            : "Add Student"}
         </h3>
 
         <p className="mt-1 text-sm text-gray-500">
-          Enter the student information below.
+          {isEditing
+            ? "Update the student information below."
+            : "Enter the student information below."}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* NAME */}
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4"
+      >
         <div>
           <label
             htmlFor="name"
@@ -94,7 +139,9 @@ function AddStudentModal({ setAddStudentModal }) {
           />
 
           {touched.name && errors.name && (
-            <p className={errorClass}>{errors.name}</p>
+            <p className={errorClass}>
+              {errors.name}
+            </p>
           )}
         </div>
 
@@ -118,7 +165,9 @@ function AddStudentModal({ setAddStudentModal }) {
           />
 
           {touched.email && errors.email && (
-            <p className={errorClass}>{errors.email}</p>
+            <p className={errorClass}>
+              {errors.email}
+            </p>
           )}
         </div>
 
@@ -142,7 +191,9 @@ function AddStudentModal({ setAddStudentModal }) {
           />
 
           {touched.phone && errors.phone && (
-            <p className={errorClass}>{errors.phone}</p>
+            <p className={errorClass}>
+              {errors.phone}
+            </p>
           )}
         </div>
 
@@ -166,7 +217,9 @@ function AddStudentModal({ setAddStudentModal }) {
           />
 
           {touched.class && errors.class && (
-            <p className={errorClass}>{errors.class}</p>
+            <p className={errorClass}>
+              {errors.class}
+            </p>
           )}
         </div>
 
@@ -186,30 +239,47 @@ function AddStudentModal({ setAddStudentModal }) {
             onBlur={handleBlur}
             className={inputClass}
           >
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="active">
+              Active
+            </option>
+
+            <option value="inactive">
+              Inactive
+            </option>
           </select>
 
-          {touched.status && errors.status && (
-            <p className={errorClass}>{errors.status}</p>
-          )}
+          {touched.status &&
+            errors.status && (
+              <p className={errorClass}>
+                {errors.status}
+              </p>
+            )}
         </div>
 
-        {/* BUTTONS */}
         <div className="flex justify-end gap-3 pt-3">
           <button
             type="button"
-            onClick={() => setAddStudentModal(false)}
-            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            disabled={loading}
+            onClick={() =>
+              setAddStudentModal(false)
+            }
+            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Cancel
           </button>
 
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+            disabled={loading}
+            className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
           >
-           {addLoading?"Adding...":"Add Student"}
+            {loading
+              ? isEditing
+                ? "Updating..."
+                : "Adding..."
+              : isEditing
+                ? "Update Student"
+                : "Add Student"}
           </button>
         </div>
       </form>

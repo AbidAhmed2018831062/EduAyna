@@ -21,13 +21,14 @@ app.use("/students",studentRouter);
 
 const port = process.env.PORT
  app.use((err, req, res, next) => {
+
     if (err.code === "23505") {
       return res.status(400).json({
         message: "A student with this email already exists",
       });
     }
     res.status(500).json({
-      error: err.message,
+      message: err.message,
       status:err.status
     });
   });

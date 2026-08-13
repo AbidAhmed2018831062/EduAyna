@@ -2,15 +2,24 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchstudents = createAsyncThunk(
   "students/fetchStudents",
-  async () => {
+async (_,{rejectWithValue}) => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND}/students`);
-    return response.json();
+    const value=await response?.json();
+    console.log(value)
+     if(response?.ok){
+      return value
+    }
+    else{
+     return rejectWithValue(
+          value.message || "Failed to fetch student"
+        );
+    }
   },
 );
 
 export const addStudent = createAsyncThunk(
   "students/addStudent",
-  async (data) => {
+  async (data,{rejectWithValue}) => {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND}/students`,
       {
@@ -22,13 +31,21 @@ export const addStudent = createAsyncThunk(
       },
     );
     const value = await response.json();
-    return value;
+    if(response?.ok){
+      return value
+    }
+    else{
+     return rejectWithValue(
+          value.message || "Failed to add student"
+        );
+    }
+   
   },
 );
 
 export const updateStudent = createAsyncThunk(
   "students/updateStudent",
-  async ({ id, title }) => {
+  async ({ id, data },{rejectWithValue}) => {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND}/students/${id}`,
       {
@@ -36,22 +53,36 @@ export const updateStudent = createAsyncThunk(
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ data }),
       },
     );
-
-    return response.json();
+ const value=await response?.json();
+    if(response?.ok){
+      return value
+    }
+    else{
+     return rejectWithValue(
+          value.message || "Failed to add student"
+        );
+    }
   },
 );
 
 export const deleteStudent = createAsyncThunk(
   "students/deleteStudent",
-  async (id) => {
-    await fetch(`${process.env.NEXT_PUBLIC_BACKEND}/students/${id}`, {
+  async (id,{rejectWithValue}) => {
+   const response= await fetch(`${process.env.NEXT_PUBLIC_BACKEND}/students/${id}`, {
       method: "DELETE",
     });
-
-    return id;
+ const value=await response?.json();
+    if(response?.ok){
+      return value
+    }
+    else{
+     return rejectWithValue(
+          value.message || "Failed to add student"
+        );
+    }
   },
 );
 
@@ -64,6 +95,10 @@ const studentsSlice = createSlice({
     error: null,
     addLoading: false,
     addError: null,
+    deleteError:null,
+    deleteLoading:false,
+    updateLoading:false,
+    updateError:null
   },
 
   reducers: {},
@@ -71,15 +106,17 @@ const studentsSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(fetchstudents.pending, (state, action) => {
       state.loading = true;
-      state.addError = false;
+      state.error = false;
     });
     builder.addCase(fetchstudents.fulfilled, (state, action) => {
+       state.loading = false;
+        state.error = null;
       state.students = action.payload;
     });
     builder.addCase(fetchstudents.rejected, (state, action) => {
       state.loading = false;
 
-      state.error = action.error.message || "Failed to add task";
+      state.error = action.error.message || "Failed to add student";
     });
 
     builder
@@ -91,15 +128,78 @@ const studentsSlice = createSlice({
       .addCase(addStudent.fulfilled, (state, action) => {
         state.addLoading = false;
         state.addError = null;
-
-        state.students.push(action.payload);
+         console.log(action.payload)
+        state.students.push(action?.payload?.student);
       })
 
       .addCase(addStudent.rejected, (state, action) => {
         state.addLoading = false;
 
-        state.addError = action.error.message || "Failed to add task";
+        state.addError = action.error.message || "Failed to add student";
       });
+
+      builder.addCase(deleteStudent.pending, (state) => {
+        state.deleteLoading = true;
+        state.deleteError = null;
+      })
+
+      builder.addCase(deleteStudent.fulfilled, (state, action) => {
+        state.deleteLoading = false;
+        state.deleteError = null;
+        console.log(action.payload)
+       state.students = state.students.filter(
+  (student) =>
+    Number(student?.id) !== Number(action?.payload?.id)
+);
+      })
+
+      builder.addCase(deleteStudent.rejected, (state, action) => {
+        state.deleteLoading = false;
+
+        state.deleteError = action.error.message || "Failed to add student";
+      });
+
+      builder
+  builder.addCase(updateStudent.pending, (state) => {
+    state.updateLoading = true;
+    state.updateError = null;
+  })
+
+  builder.addCase(
+    updateStudent.fulfilled,
+    (state, action) => {
+      state.updateLoading = false;
+      state.updateError = null;
+
+      const updatedStudent =
+        action.payload?.student ||
+        action.payload;
+
+      const index =
+        state.students.findIndex(
+          (student) =>
+            student.id ===
+            updatedStudent.id
+        );
+
+      if (index !== -1) {
+        state.students[index] =
+          updatedStudent;
+      }
+    }
+  )
+
+ builder.addCase(
+    updateStudent.rejected,
+    (state, action) => {
+      state.updateLoading = false;
+
+      state.updateError =
+        action.payload ||
+        action.error.message ||
+        "Failed to update student";
+    }
+  );
   },
 });
 
